@@ -72,9 +72,9 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
     self->touchHandler = [[RelativeTouchHandler alloc] initWithView:self];
 #else
     simCityProfile = [[NSUserDefaults standardUserDefaults] boolForKey:SimCityTouchProfileKey];
-    self.multipleTouchEnabled = YES;
     // iOS uses RelativeTouchHandler or AbsoluteTouchHandler depending on user preference
     if (simCityProfile) {
+        self.multipleTouchEnabled = YES;
         self->touchHandler = [[SimCityTouchHandler alloc] initWithView:self];
     }
     else if (settings.absoluteTouchMode) {
@@ -87,7 +87,7 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
     onScreenControls = [[OnScreenControls alloc] initWithView:self controllerSup:controllerSupport streamConfig:streamConfig];
     OnScreenControlsLevel level = (OnScreenControlsLevel)[settings.onscreenControls integerValue];
     if (settings.absoluteTouchMode || simCityProfile) {
-        Log(LOG_I, @"On-screen controls disabled in absolute touch mode");
+        Log(LOG_I, @"On-screen controls disabled in direct touch mode");
         [onScreenControls setLevel:OnScreenControlsLevelOff];
     }
     else if (level == OnScreenControlsLevelAuto) {
@@ -338,13 +338,13 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
 #endif
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (simCityProfile && !simCityInputEnabled) return;
     if ([self handleMouseButtonEvent:BUTTON_ACTION_PRESS
                           forTouches:touches
                            withEvent:event]) {
         // If it's a mouse event, we're done
         return;
     }
+    if (simCityProfile && !simCityInputEnabled) return;
     
     Log(LOG_D, @"Touch down");
     
@@ -529,7 +529,6 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (simCityProfile && !simCityInputEnabled) return;
 #if !TARGET_OS_TV
     if (@available(iOS 13.4, *)) {
         for (UITouch* touch in touches) {
@@ -561,6 +560,7 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
     }
 #endif
     
+    if (simCityProfile && !simCityInputEnabled) return;
     hasUserInteracted = YES;
     
     if (![onScreenControls handleTouchMovedEvent:touches]) {
@@ -607,13 +607,13 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (simCityProfile && !simCityInputEnabled) return;
     if ([self handleMouseButtonEvent:BUTTON_ACTION_RELEASE
                           forTouches:touches
                            withEvent:event]) {
         // If it's a mouse event, we're done
         return;
     }
+    if (simCityProfile && !simCityInputEnabled) return;
     
     Log(LOG_D, @"Touch up");
     
