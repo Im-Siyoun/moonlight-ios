@@ -14,6 +14,9 @@
 #import "RelativeTouchHandler.h"
 #import "AbsoluteTouchHandler.h"
 #import "KeyboardInputField.h"
+#if !TARGET_OS_TV
+#import "SimCityTouchHandler.h"
+#endif
 
 static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
 
@@ -38,6 +41,8 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
     double accumulatedMouseDeltaY;
     
     UIResponder* touchHandler;
+    BOOL simCityProfile;
+    BOOL simCityInputEnabled;
     
     id<UserInteractionDelegate> interactionDelegate;
     NSTimer* interactionTimer;
@@ -66,8 +71,13 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
     // tvOS requires RelativeTouchHandler to manage Apple Remote input
     self->touchHandler = [[RelativeTouchHandler alloc] initWithView:self];
 #else
+    simCityProfile = [[NSUserDefaults standardUserDefaults] boolForKey:SimCityTouchProfileKey];
+    self.multipleTouchEnabled = YES;
     // iOS uses RelativeTouchHandler or AbsoluteTouchHandler depending on user preference
-    if (settings.absoluteTouchMode) {
+    if (simCityProfile) {
+        self->touchHandler = [[SimCityTouchHandler alloc] initWithView:self];
+    }
+    else if (settings.absoluteTouchMode) {
         self->touchHandler = [[AbsoluteTouchHandler alloc] initWithView:self];
     }
     else {
@@ -76,7 +86,7 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
     
     onScreenControls = [[OnScreenControls alloc] initWithView:self controllerSup:controllerSupport streamConfig:streamConfig];
     OnScreenControlsLevel level = (OnScreenControlsLevel)[settings.onscreenControls integerValue];
-    if (settings.absoluteTouchMode) {
+    if (settings.absoluteTouchMode || simCityProfile) {
         Log(LOG_I, @"On-screen controls disabled in absolute touch mode");
         [onScreenControls setLevel:OnScreenControlsLevelOff];
     }
@@ -165,6 +175,15 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
 #if !TARGET_OS_TV
     [onScreenControls show];
 #endif
+}
+
+- (BOOL)isSimCityTouchProfileActive { return simCityProfile; }
+
+- (void)setSimCityInputEnabled:(BOOL)enabled {
+#if !TARGET_OS_TV
+    if (simCityProfile && !enabled) [(SimCityTouchHandler *)touchHandler cancel];
+#endif
+    simCityInputEnabled = enabled;
 }
 
 - (OnScreenControlsLevel) getCurrentOscState {
@@ -319,6 +338,7 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
 #endif
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (simCityProfile && !simCityInputEnabled) return;
     if ([self handleMouseButtonEvent:BUTTON_ACTION_PRESS
                           forTouches:touches
                            withEvent:event]) {
@@ -509,6 +529,7 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (simCityProfile && !simCityInputEnabled) return;
 #if !TARGET_OS_TV
     if (@available(iOS 13.4, *)) {
         for (UITouch* touch in touches) {
@@ -586,6 +607,7 @@ static const double X1_MOUSE_SPEED_DIVISOR = 2.5;
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (simCityProfile && !simCityInputEnabled) return;
     if ([self handleMouseButtonEvent:BUTTON_ACTION_RELEASE
                           forTouches:touches
                            withEvent:event]) {

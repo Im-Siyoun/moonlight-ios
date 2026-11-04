@@ -12,6 +12,9 @@
 #import "OnScreenControls.h"
 
 #import "DataManager.h"
+#if !TARGET_OS_TV
+#import "SimCityTouchHandler.h"
+#endif
 #include "Limelight.h"
 
 @import GameController;
@@ -1061,7 +1064,11 @@ static const double MOUSE_SPEED_DIVISOR = 1.25;
     // Even if no gamepads are present, we will always count one if OSC is enabled,
     // or it's set to auto and no keyboard or mouse is present. Absolute touch mode
     // disables the OSC.
-    if (level != OnScreenControlsLevelOff && (![ControllerSupport hasKeyboardOrMouse] || level != OnScreenControlsLevelAuto) && !settings.absoluteTouchMode) {
+    BOOL simCityProfile = NO;
+#if !TARGET_OS_TV
+    simCityProfile = [[NSUserDefaults standardUserDefaults] boolForKey:SimCityTouchProfileKey];
+#endif
+    if (level != OnScreenControlsLevelOff && (![ControllerSupport hasKeyboardOrMouse] || level != OnScreenControlsLevelAuto) && !settings.absoluteTouchMode && !simCityProfile) {
         mask |= 0x1;
     }
     

@@ -9,6 +9,7 @@
 #import "SettingsViewController.h"
 #import "TemporarySettings.h"
 #import "DataManager.h"
+#import "SimCityTouchHandler.h"
 
 #import <VideoToolbox/VideoToolbox.h>
 #import <AVFoundation/AVFoundation.h>
@@ -240,7 +241,9 @@ BOOL isCustomResolution(CGSize res) {
         [self.hdrSelector setSelectedSegmentIndex:currentSettings.enableHdr ? 1 : 0];
     }
     
-    [self.touchModeSelector setSelectedSegmentIndex:currentSettings.absoluteTouchMode ? 1 : 0];
+    [self.touchModeSelector insertSegmentWithTitle:@"SimCity" atIndex:2 animated:NO];
+    BOOL simCityProfile = [[NSUserDefaults standardUserDefaults] boolForKey:SimCityTouchProfileKey];
+    [self.touchModeSelector setSelectedSegmentIndex:simCityProfile ? 2 : (currentSettings.absoluteTouchMode ? 1 : 0)];
     [self.touchModeSelector addTarget:self action:@selector(touchModeChanged) forControlEvents:UIControlEventValueChanged];
     [self.statsOverlaySelector setSelectedSegmentIndex:currentSettings.statsOverlay ? 1 : 0];
     [self.btMouseSelector setSelectedSegmentIndex:currentSettings.btMouseSupport ? 1 : 0];
@@ -256,7 +259,7 @@ BOOL isCustomResolution(CGSize res) {
     [self.framerateSelector setSelectedSegmentIndex:framerate];
     [self.framerateSelector addTarget:self action:@selector(updateBitrate) forControlEvents:UIControlEventValueChanged];
     [self.onscreenControlSelector setSelectedSegmentIndex:onscreenControls];
-    [self.onscreenControlSelector setEnabled:!currentSettings.absoluteTouchMode];
+    [self touchModeChanged];
     [self.bitrateSlider setMinimumValue:0];
     [self.bitrateSlider setMaximumValue:(sizeof(bitrateTable) / sizeof(*bitrateTable)) - 1];
     [self.bitrateSlider setValue:[self getSliderValueForBitrate:_bitrate] animated:YES];
@@ -536,6 +539,8 @@ BOOL isCustomResolution(CGSize res) {
     BOOL btMouseSupport = [self.btMouseSelector selectedSegmentIndex] == 1;
     BOOL useFramePacing = [self.framePacingSelector selectedSegmentIndex] == 1;
     BOOL absoluteTouchMode = [self.touchModeSelector selectedSegmentIndex] == 1;
+    [[NSUserDefaults standardUserDefaults] setBool:[self.touchModeSelector selectedSegmentIndex] == 2
+                                          forKey:SimCityTouchProfileKey];
     BOOL statsOverlay = [self.statsOverlaySelector selectedSegmentIndex] == 1;
     BOOL enableHdr = [self.hdrSelector selectedSegmentIndex] == 1;
     [dataMan saveSettingsWithBitrate:_bitrate

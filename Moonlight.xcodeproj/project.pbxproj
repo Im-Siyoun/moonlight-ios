@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		534354000000000000000001 /* SimCityTouchHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 534354000000000000000002 /* SimCityTouchHandler.m */; };
+		534354000000000000000003 /* SimCityTouchCore.c in Sources */ = {isa = PBXBuildFile; fileRef = 534354000000000000000004 /* SimCityTouchCore.c */; };
 		693B3A9B218638CD00982F7B /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 693B3A9A218638CD00982F7B /* Settings.bundle */; };
 		98181BE92791277400E43572 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98181BE82791275D00E43572 /* libSDL2.a */; };
 		98181BEB2791278F00E43572 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 98181BEA2791278300E43572 /* libSDL2.a */; };
@@ -170,6 +172,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		534354000000000000000002 /* SimCityTouchHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SimCityTouchHandler.m; sourceTree = "<group>"; };
+		534354000000000000000004 /* SimCityTouchCore.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SimCityTouchCore.c; sourceTree = "<group>"; };
+		534354000000000000000005 /* SimCityTouchHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimCityTouchHandler.h; sourceTree = "<group>"; };
+		534354000000000000000006 /* SimCityTouchCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimCityTouchCore.h; sourceTree = "<group>"; };
 		566E9D2B2770B23A00EF7BFE /* Moonlight v1.7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Moonlight v1.7.xcdatamodel"; sourceTree = "<group>"; };
 		693B3A9A218638CD00982F7B /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		9803CCAB254F9EAF00EE185E /* ConnectionCallbacks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConnectionCallbacks.h; sourceTree = "<group>"; };
@@ -517,6 +523,10 @@
 				9819CC13254F107A008A7C8E /* RelativeTouchHandler.m */,
 				9819CC20254F180F008A7C8E /* AbsoluteTouchHandler.h */,
 				9819CC21254F180F008A7C8E /* AbsoluteTouchHandler.m */,
+				534354000000000000000002 /* SimCityTouchHandler.m */,
+				534354000000000000000005 /* SimCityTouchHandler.h */,
+				534354000000000000000004 /* SimCityTouchCore.c */,
+				534354000000000000000006 /* SimCityTouchCore.h */,
 				988FCD3F293B091B003050E2 /* KeyboardInputField.h */,
 				988FCD40293B091B003050E2 /* KeyboardInputField.m */,
 			);
@@ -887,6 +897,8 @@
 			files = (
 				FB290D0719B2C406004C83CF /* Limelight.xcdatamodeld in Sources */,
 				9819CC22254F180F008A7C8E /* AbsoluteTouchHandler.m in Sources */,
+				534354000000000000000001 /* SimCityTouchHandler.m in Sources */,
+				534354000000000000000003 /* SimCityTouchCore.c in Sources */,
 				9819CC14254F107A008A7C8E /* RelativeTouchHandler.m in Sources */,
 				FB1A674D2131E65900507771 /* KeyboardSupport.m in Sources */,
 				FB89463219F646E200339C8A /* VideoDecoderRenderer.m in Sources */,
@@ -1113,7 +1125,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = DM46QST4M7;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -1172,7 +1184,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
-				DEVELOPMENT_TEAM = DM46QST4M7;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -1236,7 +1248,7 @@
 					"$(PROJECT_DIR)/libs/FFmpeg/lib/iOS-Sim",
 				);
 				MARKETING_VERSION = 9.0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.moonlight-stream.Moonlight";
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.im-siyoun.moonlight.simcity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = NO;
@@ -1286,7 +1298,7 @@
 					"$(PROJECT_DIR)/libs/FFmpeg/lib/iOS-Sim",
 				);
 				MARKETING_VERSION = 9.0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.moonlight-stream.Moonlight";
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.im-siyoun.moonlight.simcity;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = NO;

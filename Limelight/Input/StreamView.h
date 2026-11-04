@@ -29,6 +29,8 @@
                   config:(StreamConfiguration*)streamConfig;
 - (void) showOnScreenControls;
 - (OnScreenControlsLevel) getCurrentOscState;
+- (BOOL)isSimCityTouchProfileActive;
+- (void)setSimCityInputEnabled:(BOOL)enabled;
 
 #if !TARGET_OS_TV
 - (void) updateCursorLocation:(CGPoint)location isMouse:(BOOL)isMouse;

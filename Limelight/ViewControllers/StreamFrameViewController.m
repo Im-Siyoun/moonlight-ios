@@ -46,6 +46,7 @@
     StreamView *_streamView;
     UIScrollView *_scrollView;
     BOOL _userIsInteracting;
+    BOOL _connectionActive;
     CGSize _keyboardSize;
     
 #if !TARGET_OS_TV
@@ -56,10 +57,24 @@
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    [_streamView setSimCityInputEnabled:_connectionActive && UIApplication.sharedApplication.applicationState == UIApplicationStateActive];
     
 #if !TARGET_OS_TV
     [[self revealViewController] setPrimaryViewController:self];
 #endif
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [_streamView setSimCityInputEnabled:NO];
+    [super viewWillDisappear:animated];
+}
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [_streamView setSimCityInputEnabled:NO];
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    [coordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        [self->_streamView setSimCityInputEnabled:self->_connectionActive && UIApplication.sharedApplication.applicationState == UIApplicationStateActive];
+    }];
 }
 
 #if TARGET_OS_TV
@@ -187,7 +202,7 @@
 #endif
     
     // Only enable scroll and zoom in absolute touch mode
-    if (_settings.absoluteTouchMode) {
+    if (_settings.absoluteTouchMode && ![_streamView isSimCityTouchProfileActive]) {
         _scrollView = [[UIScrollView alloc] initWithFrame:self.view.frame];
 #if !TARGET_OS_TV
         [_scrollView.panGestureRecognizer setMinimumNumberOfTouches:2];
@@ -218,6 +233,7 @@
 - (void)willMoveToParentViewController:(UIViewController *)parent {
     // Only cleanup when we're being destroyed
     if (parent == nil) {
+        [_streamView setSimCityInputEnabled:NO];
         [_controllerSupport cleanup];
         [UIApplication sharedApplication].idleTimerDisabled = NO;
         [_streamMan stopStream];
@@ -306,6 +322,8 @@
 }
 
 - (void) returnToMainFrame {
+    _connectionActive = NO;
+    [_streamView setSimCityInputEnabled:NO];
     // Reset display mode back to default
     [self updatePreferredDisplayMode:NO];
     
@@ -317,6 +335,7 @@
 
 // This will fire if the user opens control center or gets a low battery message
 - (void)applicationWillResignActive:(NSNotification *)notification {
+    [_streamView setSimCityInputEnabled:NO];
     if (_inactivityTimer != nil) {
         [_inactivityTimer invalidate];
     }
@@ -341,6 +360,7 @@
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
+    [_streamView setSimCityInputEnabled:_connectionActive];
     // Stop the background timer, since we're foregrounded again
     if (_inactivityTimer != nil) {
         Log(LOG_I, @"Stopping inactivity timer after becoming active again");
@@ -374,6 +394,8 @@
         // the first frame of video.
         self->_stageLabel.hidden = YES;
         self->_tipLabel.hidden = YES;
+        self->_connectionActive = YES;
+        [self->_streamView setSimCityInputEnabled:UIApplication.sharedApplication.applicationState == UIApplicationStateActive];
         
         [self->_streamView showOnScreenControls];
         
@@ -391,6 +413,10 @@
 
 - (void)connectionTerminated:(int)errorCode {
     Log(LOG_I, @"Connection terminated: %d", errorCode);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->_connectionActive = NO;
+        [self->_streamView setSimCityInputEnabled:NO];
+    });
     
     unsigned int portFlags = LiGetPortFlagsFromTerminationErrorCode(errorCode);
     unsigned int portTestResults = LiTestClientConnectivity(CONN_TEST_SERVER, 443, portFlags);

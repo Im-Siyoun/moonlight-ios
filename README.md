@@ -1,5 +1,9 @@
 # Moonlight iOS/tvOS
 
+This fork adds an optional **SimCity Touch Profile** for SimCity (2013).
+See [한국어 조작·unsigned IPA 빌드·Windows Sideloadly 설치 안내](docs/SIMCITY_TOUCH_KO.md)
+and [repository analysis and implementation](docs/SIMCITY_IMPLEMENTATION.md).
+
 [![CI](https://github.com/moonlight-stream/moonlight-ios/actions/workflows/ci.yml/badge.svg)](https://github.com/moonlight-stream/moonlight-ios/actions/workflows/ci.yml)
 
 [Moonlight for iOS/tvOS](https://moonlight-stream.org) is an open source client for [Sunshine](https://github.com/LizardByte/Sunshine) and NVIDIA GameStream. Moonlight for iOS/tvOS allows you to stream your full collection of games and apps from your powerful desktop computer to your iOS device or Apple TV.

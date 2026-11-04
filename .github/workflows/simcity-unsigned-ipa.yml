@@ -1,0 +1,83 @@
+name: SimCity unsigned iPad IPA
+
+on:
+  push:
+    branches: [simcity-touch]
+  pull_request:
+    branches: [simcity-touch]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: simcity-ipa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  touch-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Input state machine (ASan + UBSan)
+        run: bash BuildScripts/test-simcity-touch.sh
+
+  unsigned-ipa:
+    needs: touch-tests
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Record Xcode, SDKs, schemes and submodules
+        run: |
+          mkdir -p Build
+          xcodebuild -version | tee Build/xcode-version.txt
+          xcodebuild -showsdks | tee Build/sdks.txt
+          git submodule status --recursive | tee Build/submodules.txt
+          xcodebuild -list -project Moonlight.xcodeproj | tee Build/project-list.txt
+      - name: Input state machine on macOS
+        run: bash BuildScripts/test-simcity-touch.sh
+      - name: Build unsigned device app
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project Moonlight.xcodeproj \
+            -scheme Moonlight \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath Build/DerivedData \
+            -resultBundlePath Build/DeviceBuild.xcresult \
+            -onlyUsePackageVersionsFromResolvedFile \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=NO \
+            IPHONEOS_DEPLOYMENT_TARGET=15.0 \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= DEVELOPMENT_TEAM= \
+            build 2>&1 | tee Build/device-build.log
+      - name: Validate and package unsigned IPA
+        run: |
+          python3 BuildScripts/package-unsigned-ipa.py \
+            Build/DerivedData/Build/Products/Release-iphoneos/Moonlight.app \
+            Build/Artifacts/Moonlight-SimCity-unsigned.ipa
+          cp docs/SIMCITY_TOUCH_KO.md Build/Artifacts/
+      - name: Upload installable-after-re-signing IPA and manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: Moonlight-SimCity-unsigned-${{ github.run_number }}
+          path: Build/Artifacts/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SimCity-build-evidence-${{ github.run_number }}
+          path: |
+            Build/*.txt
+            Build/*.log
+            Build/DeviceBuild.xcresult
+          if-no-files-found: warn
+          retention-days: 14
